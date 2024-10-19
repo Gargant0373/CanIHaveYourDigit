@@ -7,8 +7,8 @@ import torch
 
 def load_mnist_data(batch_size=32):
     transform = transforms.Compose([
-        transforms.ToTensor(),                # Convert images to PyTorch tensors
-        transforms.Normalize((0.5,), (0.5,))  # Normalize to [-1, 1]
+        transforms.ToTensor(),                
+        transforms.Normalize((0.5,), (0.5,))  
     ])
 
     # Load the MNIST training and testing datasets
