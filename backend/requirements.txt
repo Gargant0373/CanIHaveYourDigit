@@ -1,0 +1,7 @@
+torch
+scikit-learn
+flask
+pillow
+torchvision
+flask-cors
+flask-socketio
