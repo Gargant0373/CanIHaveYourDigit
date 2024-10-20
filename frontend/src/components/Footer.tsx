@@ -3,10 +3,10 @@ import styled from "styled-components";
 function Footer() {
 
     const Container = styled.footer`
-        align-self: flex-end;
-        margin-top: 100px;
+        margin-top: auto;
         width: 100%;
 
+        padding-top: 20px;
         margin-top: 1px solid #FFF;
         flex-direction: column;
     `;

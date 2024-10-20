@@ -15,7 +15,7 @@ const CanvasStyled = styled.canvas`
   filter: invert(1);
 `;
 
-const Canvas: React.FC<{ onDraw: (imageData: string) => void; onClear: () => void, brushSize: number }> = ({ onDraw, onClear, brushSize }) => {
+const Canvas: React.FC<{ onDraw: (imageData: string) => void; onClear: () => void, brushSize: number }> = ({ onDraw, brushSize }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
 
@@ -47,7 +47,10 @@ const Canvas: React.FC<{ onDraw: (imageData: string) => void; onClear: () => voi
     if (context) {
       context.closePath();
       isDrawing.current = false;
-      sendCanvasData();
+      const canvas = canvasRef.current;
+      // Ensure that the canvas is not empty
+      if (canvas && context.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0))
+        sendCanvasData();
     }
   };
 

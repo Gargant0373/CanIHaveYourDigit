@@ -44,6 +44,11 @@ def handle_draw_data(data):
             image = Image.merge("RGB", (alpha, alpha, alpha))
 
         transformed_image = transform(image).unsqueeze(0)
+        
+        if transformed_image.sum() == 0:
+            probabilities = [1.0 / 10] * 10
+            emit('prediction', {'probabilities': probabilities})
+            return
 
         with torch.no_grad():
             outputs = model(transformed_image)

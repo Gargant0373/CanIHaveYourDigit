@@ -17,9 +17,9 @@ const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     background: linear-gradient(135deg, #000000, #0b0302);
     flex-direction: column;
+    min-height: 100vh;
 `;
 
 const CanvasContainer = styled.div`
@@ -105,6 +105,8 @@ const App: React.FC = () => {
             setPredictions(updatedPredictions);
         });
 
+        clearPredictions();
+
         return () => {
             socketRef.current.disconnect();
         };
@@ -158,6 +160,10 @@ const App: React.FC = () => {
                         family: 'IBM Plex Mono',
                         size: 12,
                     },
+                    autoSkip: false,
+                    maxRotation: 90,
+                    minRotation: 20,
+                    padding: 10,
                 }
             },
             y: {
@@ -168,7 +174,8 @@ const App: React.FC = () => {
                     }
                 }
             }
-        }
+        },
+        responsive: true,
     };
 
     const chartData = {
@@ -180,6 +187,7 @@ const App: React.FC = () => {
                 backgroundColor: "#c49300",
                 borderColor: '#4f3b00',
                 borderWidth: 1,
+
             },
         ],
     };
@@ -195,7 +203,7 @@ const App: React.FC = () => {
             <CanvasContainer>
                 <Canvas onDraw={handleDrawData} onClear={clearPredictions} brushSize={brushSize} />
                 {predictions.length > 0 && (
-                    <div style={{ width: '500px', marginTop: '20px' }}>
+                    <div style={{ width: '500px', marginTop: '20px', overflow: 'visible' }}>
                         <Bar data={chartData} options={chartOptions} />
                     </div>
                 )}
