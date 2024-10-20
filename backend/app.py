@@ -8,14 +8,17 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 import base64
 from models.cnn_classifier import CNNModel
+from models.svm_classifier import SVMClassifier
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 
-model = CNNModel()
-model.load_state_dict(torch.load('cnn_mnist_model.pth', map_location='cpu'))
-model.eval()
+cnn_model = CNNModel()
+cnn_model.load_state_dict(torch.load('cnn_mnist_model.pth', map_location='cpu'))
+cnn_model.eval()
+
+svm_model = SVMClassifier()  
 
 transform = transforms.Compose([
     transforms.Grayscale(num_output_channels=1),
@@ -33,26 +36,32 @@ def handle_disconnect():
 @socketio.on('draw_data')
 def handle_draw_data(data):
     image_data = data['image'].split(',')[1]
+    model_choice = data.get('model', 'cnn')
 
     try:
         image = Image.open(io.BytesIO(base64.b64decode(image_data)))
-        
+
         # This bug caused me 2 hours of headaches.
         if image.mode == 'RGBA':
             alpha = image.split()[3]
-
             image = Image.merge("RGB", (alpha, alpha, alpha))
 
         transformed_image = transform(image).unsqueeze(0)
-        
+        flattened_image = transformed_image.view(transformed_image.size(0), -1).numpy()
+
         if transformed_image.sum() == 0:
             probabilities = [1.0 / 10] * 10
             emit('prediction', {'probabilities': probabilities})
             return
 
-        with torch.no_grad():
-            outputs = model(transformed_image)
-            probabilities = F.softmax(outputs, dim=1).squeeze().tolist()
+        if model_choice == 'svm':
+            prediction = svm_model.predict(flattened_image)
+            probabilities = [0] * 10
+            probabilities[int(prediction[0])] = 1.0
+        else:
+            with torch.no_grad():
+                outputs = cnn_model(transformed_image)
+                probabilities = F.softmax(outputs, dim=1).squeeze().tolist()
 
         emit('prediction', {'probabilities': probabilities})
     except Exception as e:

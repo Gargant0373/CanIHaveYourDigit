@@ -64,6 +64,22 @@ const Button = styled.button`
   }
 `;
 
+const ModelSelection = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+`;
+
+const ModelButton = styled.button<{ isActive: boolean }>`
+  padding: 10px 20px;
+  background-color: ${(props) => (props.isActive ? '#c49300' : '#d9d9d9')};
+  color: ${(props) => (props.isActive ? '#fff' : '#000')};
+  border: 2px solid #fff;
+  cursor: pointer;
+  font-family: 'MS Sans Serif', sans-serif;
+  font-size: 14px;
+`;
+
 const BrushSizeIndicator = styled.div<{ size: number; x: number; y: number }>`
   position: absolute;
   z-index: 5;
@@ -86,6 +102,8 @@ const App: React.FC = () => {
     const [mousePositionY, setMousePositionY] = useState(0);
     const [scrolling, setScrolling] = useState(false);
     const [timeoutId, setTimeoutId] = useState<number | null>(null);
+    const [model, setModel] = useState<string>('cnn');
+    const [canvasData, setCanvasData] = useState<string | null>(null);
 
     useEffect(() => {
         socketRef.current = io('/');
@@ -114,11 +132,22 @@ const App: React.FC = () => {
 
     const handleDrawData = (imageData: string) => {
         const now = Date.now();
-        if (now - lastSentRef.current > 1000) {
-            socketRef.current.emit('draw_data', { image: imageData });
-            lastSentRef.current = now;
+        setCanvasData(imageData);
+        lastSentRef.current = now;
+        sendCanvasData();
+    };
+
+    const sendCanvasData = () => {
+        if (canvasData) {
+            socketRef.current.emit('draw_data', { image: canvasData, model });
         }
     };
+
+    useEffect(() => {
+        if (canvasData) {
+            sendCanvasData();
+        }
+    }, [model]);
 
     const clearPredictions = () => {
         const equalPredictions = Array.from({ length: 10 }, (_, index) => ({
@@ -187,14 +216,12 @@ const App: React.FC = () => {
                 backgroundColor: "#c49300",
                 borderColor: '#4f3b00',
                 borderWidth: 1,
-
             },
         ],
     };
 
     return (
-        <Container onWheel={(e: any
-        ) => handleMouseWheel(e)} onMouseMove={(e: any) => {
+        <Container onWheel={(e: any) => handleMouseWheel(e)} onMouseMove={(e: any) => {
             setMousePositionX(e.clientX);
             setMousePositionY(e.clientY);
         }}>
@@ -208,6 +235,12 @@ const App: React.FC = () => {
                     </div>
                 )}
             </CanvasContainer>
+
+            <ModelSelection>
+                <ModelButton isActive={model === 'cnn'} onClick={() => setModel("cnn")}>CNN</ModelButton>
+                <ModelButton isActive={model === 'svm'} onClick={() => setModel("svm")}>SVM</ModelButton>
+            </ModelSelection>
+
             <Button onClick={() => window.location.reload()}>Clear All</Button>
             <Footer />
         </Container>

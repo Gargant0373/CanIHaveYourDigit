@@ -6,3 +6,4 @@ torchvision
 flask-cors
 flask-socketio
 eventlet
+joblib
