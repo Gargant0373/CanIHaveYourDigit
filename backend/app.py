@@ -56,6 +56,7 @@ def handle_draw_data(data):
 
         if model_choice == 'svm':
             prediction = svm_model.predict(flattened_image)
+            print(prediction)
             probabilities = [0] * 10
             probabilities[int(prediction[0])] = 1.0
         else:
