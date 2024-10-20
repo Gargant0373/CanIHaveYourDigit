@@ -58,8 +58,5 @@ def handle_draw_data(data):
     except Exception as e:
         print(f"Error processing image: {e}")
 
-
-
-
 if __name__ == '__main__':
-    socketio.run(app, debug=True, load_dotenv=False)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)

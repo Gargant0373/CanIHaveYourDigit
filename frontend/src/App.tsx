@@ -88,7 +88,7 @@ const App: React.FC = () => {
     const [timeoutId, setTimeoutId] = useState<number | null>(null);
 
     useEffect(() => {
-        socketRef.current = io('http://localhost:5000');
+        socketRef.current = io('/');
 
         socketRef.current.on('connect', () => {
             console.log('Connected to WebSocket server');

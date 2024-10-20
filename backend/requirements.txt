@@ -5,3 +5,4 @@ pillow
 torchvision
 flask-cors
 flask-socketio
+eventlet
